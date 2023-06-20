@@ -1,0 +1,57 @@
+version: '3.3'
+services:
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    command: certonly --standalone --email kbvktv@gmail.com --agree-tos --no-eff-email --force-renewal -d demo-ymt.magrabbit.com -d www.demo-ymt.magrabbit.com
+  db:
+    image: mysql:8.0
+    container_name: mysql_server
+    networks:
+      - my_network
+    command: ['--default-authentication-plugin=mysql_native_password', '--lower_case_table_names=1']
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./mysql-dump:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456799
+      MYSQL_DATABASE: pilot-project
+      MYSQL_USER: developer
+      MYSQL_PASSWORD: 123456789
+    ports:
+      - 3306:3306
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    networks:
+      - my_network
+    ports:
+      - '8081:80'
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: 123456799
+  web:
+    build: ./tomcat
+    depends_on:
+      - db
+    image: tomcat:9.0.70-jdk11-corretto-al2
+    container_name: webapps
+    networks:
+      - my_network
+    volumes:
+      - tomcat:/usr/local/tomcat
+      - ./sample-project:/opt/sample-project
+      - /etc/letsencrypt:/etc/letsencrypt
+    ports:
+      - '80:8080'
+      - '443:8443' 
+volumes:
+  db-data:
+  tomcat:
+networks:
+  my_network:
+    driver: bridge
