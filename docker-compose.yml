@@ -1,11 +1,11 @@
 version: '3.3'
 services:
-  # certbot:
-    # image: certbot/certbot
-    # container_name: certbot
-    # volumes:
-      # - /etc/letsencrypt:/etc/letsencrypt
-    # command: certonly --standalone --email kbvktv@gmail.com --agree-tos --no-eff-email --force-renewal -d demo-ymt.magrabbit.com -d www.demo-ymt.magrabbit.com
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    command: certonly --standalone --email ${DOMAIN_EMAIL} --agree-tos --no-eff-email --force-renewal -d ${DOMAIN_NAME} -d www.${DOMAIN_NAME}
   db:
     image: mysql:8.0
     container_name: mysql_server
